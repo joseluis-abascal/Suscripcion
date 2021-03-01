@@ -1,0 +1,13 @@
+package com.suscripcionAdidas;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SuscripcionAdidasApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SuscripcionAdidasApplication.class, args);
+	}
+
+}

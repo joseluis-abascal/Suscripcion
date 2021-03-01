@@ -1,0 +1,8 @@
+server.port=8082 
+spring.mail.host=192.168.1.20
+spring.mail.port=25
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+

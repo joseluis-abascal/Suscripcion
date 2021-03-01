@@ -1,0 +1,9 @@
+package com.suscripcionAdidas.dao;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.suscripcionAdidas.model.Suscripcion;
+
+public interface SuscripcionDAO extends JpaRepository<Suscripcion, String> {
+	boolean ExistsByEmailAndNewsletter_id(String email, String newsletter_id);
+}

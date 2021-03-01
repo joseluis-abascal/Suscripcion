@@ -1,0 +1,160 @@
+package com.demoAdidas.controller;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.demoAdidas.dao.SuscripcionDAO;
+import com.demoAdidas.model.Respuesta;
+import com.demoAdidas.model.Suscripcion;
+import com.demoAdidas.model.SuscripcionRest;
+
+@RestController
+@RequestMapping(value = "suscripcion")
+public class SuscripcionController {
+	@Autowired
+	private SuscripcionDAO suscripcionDAO;
+	
+	
+	@PostMapping("/alta")
+	public Respuesta alta(@RequestBody SuscripcionRest subscriptionRest) {
+		Respuesta res=new Respuesta();
+		res.setCodResuesta("ERROR");
+		SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
+		Suscripcion subscription = new Suscripcion();
+		String respuesta="";
+		
+		respuesta=checkFields(subscriptionRest);
+		
+		if("Registro insertado".equalsIgnoreCase(respuesta)) { 
+			subscription.setDni(subscriptionRest.getDni());
+			subscription.setNombre(subscriptionRest.getNombre());
+			subscription.setApellido(subscriptionRest.getApellido());		
+			try{
+				if(subscriptionRest.getFecha_fin()!=null && !"".equals(subscriptionRest.getFecha_fin().trim()))
+					subscription.setFecha_fin(sdf.parse(subscriptionRest.getFecha_fin()));
+				if(suscripcionDAO.existsById(subscription.getDni())) {
+					respuesta="El usuario "+subscription.getDni()+" ya esta suscrito";
+				}else {
+					suscripcionDAO.save(subscription);
+					res.setCodResuesta("OK");
+				}
+			}catch(Exception e) {
+				respuesta="Error al acceder a la base de datos";
+			}
+		}
+		res.setMsjRespuesta(respuesta);
+		return res;
+	}
+	
+	@DeleteMapping("/baja/{item}")
+	public Respuesta baja(@PathVariable("item") String item) {
+		Respuesta res=new Respuesta();
+		if(item.length()>9) {
+			res.setCodResuesta("ERROR");
+			res.setMsjRespuesta("Compruebe la longitud del DNI");
+		}else {
+			try {
+				if(suscripcionDAO.existsById(item)) {
+					suscripcionDAO.deleteById(item);
+					res.setCodResuesta("OK");
+					res.setMsjRespuesta("Se ha dado de baja al usuario "+item);
+				}else {
+					res.setCodResuesta("ERROR");
+					res.setMsjRespuesta("El usuario "+item+" no esta suscrito");
+				}
+			}catch(Exception e) {
+				res.setCodResuesta("ERROR");
+				res.setMsjRespuesta("Error al acceder a la base de datos");
+			}
+		}
+		return res;
+	}
+	
+	@GetMapping("/listar/{item}")
+	public SuscripcionRest listar(@PathVariable("item") String item){
+		SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
+		
+		if(suscripcionDAO.existsById(item)) {
+			Optional<Suscripcion> optSus= suscripcionDAO.findById(item);
+			Suscripcion suscripcion=optSus.get();
+			
+			SuscripcionRest susRest = new SuscripcionRest();
+			susRest.setDni(suscripcion.getDni());
+			susRest.setNombre(suscripcion.getNombre());
+			susRest.setApellido(suscripcion.getApellido());
+			if(suscripcion.getFecha_fin()!=null)
+				susRest.setFecha_fin(sdf.format(suscripcion.getFecha_fin()));
+			
+			return susRest;
+		}	
+		return null;
+	}
+	
+	@GetMapping("/listar")
+	public List<SuscripcionRest> listar(){
+		SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
+		List<SuscripcionRest> suscripcionesRest = new ArrayList<SuscripcionRest>();
+		
+		List<Suscripcion> suscripciones= suscripcionDAO.findAll();
+		for (Suscripcion suscripcion: suscripciones) {
+			SuscripcionRest susRest = new SuscripcionRest();
+			susRest.setDni(suscripcion.getDni());
+			susRest.setNombre(suscripcion.getNombre());
+			susRest.setApellido(suscripcion.getApellido());
+			if(suscripcion.getFecha_fin()!=null)
+				susRest.setFecha_fin(sdf.format(suscripcion.getFecha_fin()));
+			
+			suscripcionesRest.add(susRest);
+		}
+		return suscripcionesRest;
+	}
+
+	
+	private String checkFields(SuscripcionRest subscriptionRest) {
+		String respuesta="Registro insertado";
+		SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
+		//dni
+		if(subscriptionRest.getDni()==null || "".equals(subscriptionRest.getDni().trim())) {
+			respuesta="DNI no informado";
+		}else if(subscriptionRest.getDni().trim().length()>9) {
+			respuesta="Compruebe la longitud del DNI";
+		}
+		//nombre
+		if(subscriptionRest.getNombre().trim().length()>255) {
+			respuesta="Compruebe la longitud del nombre";
+		}
+		//apellido
+		if(subscriptionRest.getApellido().trim().length()>255) {
+			respuesta="Compruebe la longitud del apellido";
+		}
+		//fecha_fin
+		if(subscriptionRest.getFecha_fin()!=null && !"".equals(subscriptionRest.getFecha_fin().trim())) {
+			
+			if(subscriptionRest.getFecha_fin().trim().length()>10)
+				respuesta="Compruebe el formato de la fecha";
+			else
+			try {			
+				sdf.parse(subscriptionRest.getFecha_fin());
+				String[] partes=subscriptionRest.getFecha_fin().trim().split("/");
+				if(partes[0].length()>2 || partes[1].length()>2 || partes[2].length()!=4)
+					respuesta="Compruebe el formato de la fecha";
+			}catch(Exception e) {
+				respuesta="Compruebe el formato de la fecha";
+			}
+			
+		}
+		return respuesta;
+	}
+}

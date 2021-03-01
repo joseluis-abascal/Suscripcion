@@ -1,0 +1,62 @@
+package com.suscripcionAdidas.model;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Suscripcion {
+	@Id
+	private String email;
+	@Column
+	private String first_name;
+	@Column
+	private String gender;
+	@Column
+	private Date fecha_of_birth;
+	@Column
+	private char consent_flag;
+	@Column
+	private String newsletter_id;
+	
+	//Getters y Setters	
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getFirst_name() {
+		return first_name;
+	}
+	public void setFirst_name(String first_name) {
+		this.first_name = first_name;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public Date getFecha_of_birth() {
+		return fecha_of_birth;
+	}
+	public void setFecha_of_birth(Date fecha_of_birth) {
+		this.fecha_of_birth = fecha_of_birth;
+	}
+	public char getConsent_flag() {
+		return consent_flag;
+	}
+	public void setConsent_flag(char consent_flag) {
+		this.consent_flag = consent_flag;
+	}
+	public String getNewsletter_id() {
+		return newsletter_id;
+	}
+	public void setNewsletter_id(String newsletter_id) {
+		this.newsletter_id = newsletter_id;
+	}
+	
+}

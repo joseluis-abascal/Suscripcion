@@ -1,0 +1,23 @@
+### General Info
+***
+
+Microservice developed for sending subscription mails
+
+This is the method, running on port 8082:
+* "/mail/send/{id}" (Post) --> Send the 'subscription id' by mail to account specified in the json object
+
+## Technologies
+***
+A list of libraries used within the project:
+* [spring-boot-starter-web]: Used for restfull webservices with spring and a tomcat included
+* [spring-boot-devtools]: Used for development. It allows you to run easily the application in the embedded tomcat.
+* [spring-boot-starter-mail]: Used for sending mails.
+
+## Installation
+***
+Run it using docker.
+Docker is an open platform for building, shipping and running distributed applications. Follow steps on the site to install docker based on your operating system.
+
+Create docker image:
+* From MicroserviciosWorkspace/mailAbsis folder run the command "docker build -t mailabsis ."
+
